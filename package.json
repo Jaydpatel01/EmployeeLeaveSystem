@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "Employee Leave Management System - Full Stack Application",
   "scripts": {
-    "install:all": "npm ci --prefix server && npm ci --prefix client",
-    "build:client": "npm ci --prefix client && npm run build --prefix client",
+    "install:all": "npm ci && npm ci --prefix=client && npm ci --prefix=server",
+    "build": "node build.js",
     "start": "node server/index.js",
-    "dev:server": "npm run dev --prefix server",
-    "dev:client": "npm run dev --prefix client",
-    "build": "npm run install:all && npm run build:client"
+    "dev:server": "npm run dev --prefix=server",
+    "dev:client": "npm run dev --prefix=client"
   },
   "keywords": ["leave-management", "employee", "vue", "express", "mongodb"],
   "license": "MIT"
