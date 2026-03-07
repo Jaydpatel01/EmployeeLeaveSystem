@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Employee Leave Management System - Full Stack Application",
   "scripts": {
-    "install:all": "cd server && npm install && cd ../client && npm install",
-    "build:client": "cd client && npm run build",
+    "install:all": "cd server && npm install && cd ../client && npm install && cd ..",
+    "build:client": "cd client && npm install && npm run build",
     "start": "cd server && node index.js",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
