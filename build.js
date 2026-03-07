@@ -2,6 +2,7 @@
 
 const { execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 console.log('🔨 Building Employee Leave System...\n');
 
@@ -16,6 +17,14 @@ try {
   console.log('📦 Installing client dependencies...');
   execSync('npm ci', { cwd: clientDir, stdio: 'inherit' });
   console.log('✅ Client dependencies installed\n');
+
+  // Clear vite cache to prevent stale module resolution issues
+  const viteCachePath = path.join(clientDir, 'node_modules', '.vite');
+  if (fs.existsSync(viteCachePath)) {
+    console.log('🧹 Clearing vite cache...');
+    fs.rmSync(viteCachePath, { recursive: true, force: true });
+    console.log('✅ Cache cleared\n');
+  }
 
   console.log('📦 Building client application...');
   execSync('npm run build', { cwd: clientDir, stdio: 'inherit' });
