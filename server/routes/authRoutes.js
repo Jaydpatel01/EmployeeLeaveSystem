@@ -10,8 +10,8 @@ const {
 } = require('../controllers/authController');
 
 // Public routes
-router.post('/register', registerValidation, register);
-router.post('/login', loginValidation, login);
+router.post('/register', ...registerValidation, register);
+router.post('/login', ...loginValidation, login);
 
 // Protected routes
 router.get('/profile', authenticate, getProfile);

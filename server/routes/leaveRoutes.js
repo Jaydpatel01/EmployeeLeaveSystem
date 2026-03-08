@@ -10,7 +10,7 @@ const {
 } = require('../controllers/leaveController');
 
 // Employee routes
-router.post('/', authenticate, authorize('employee'), leaveValidation, applyLeave);
+router.post('/', authenticate, authorize('employee'), ...leaveValidation, applyLeave);
 router.get('/my', authenticate, authorize('employee'), getMyLeaves);
 
 // Employer routes
