@@ -14,17 +14,25 @@ const generateToken = (user) => {
 // Validation middleware
 const registerValidation = async (req, res, next) => {
   await Promise.all([
-    body('name').trim().notEmpty().withMessage('Name is required').run(req),
-    body('email').isEmail().withMessage('Valid email is required').run(req),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters').run(req),
-    body('role').isIn(['employee', 'employer']).withMessage('Role must be employee or employer').run(req),
+    body('name').trim().notEmpty().withMessage('Name is required')
+      .isLength({ min: 2, max: 50 }).withMessage('Name must be 2-50 characters').run(req),
+    body('email').trim().notEmpty().withMessage('Email is required')
+      .isEmail().withMessage('Please enter a valid email address')
+      .normalizeEmail().run(req),
+    body('password').notEmpty().withMessage('Password is required')
+      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
+      .isLength({ max: 128 }).withMessage('Password must be under 128 characters').run(req),
+    body('role').notEmpty().withMessage('Role is required')
+      .isIn(['employee', 'employer']).withMessage('Role must be employee or employer').run(req),
   ]);
   next();
 };
 
 const loginValidation = async (req, res, next) => {
   await Promise.all([
-    body('email').isEmail().withMessage('Valid email is required').run(req),
+    body('email').trim().notEmpty().withMessage('Email is required')
+      .isEmail().withMessage('Please enter a valid email address')
+      .normalizeEmail().run(req),
     body('password').notEmpty().withMessage('Password is required').run(req),
   ]);
   next();
@@ -35,7 +43,8 @@ const register = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
+      const firstError = errors.array()[0].msg;
+      return res.status(400).json({ message: firstError, errors: errors.array() });
     }
 
     const { name, email, password, role } = req.body;
@@ -43,7 +52,7 @@ const register = async (req, res, next) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'An account with this email already exists.' });
+      return res.status(409).json({ message: 'An account with this email already exists.' });
     }
 
     const user = await User.create({ name, email, password, role });
@@ -64,7 +73,8 @@ const login = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
+      const firstError = errors.array()[0].msg;
+      return res.status(400).json({ message: firstError, errors: errors.array() });
     }
 
     const { email, password } = req.body;

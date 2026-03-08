@@ -7,6 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000,
 });
 
 // Add JWT token to requests
@@ -18,15 +19,35 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 responses (token expired)
+// Handle responses & errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    if (error.response) {
+      const { status } = error.response;
+
+      if (status === 401) {
+        const currentPath = window.location.pathname;
+        // Don't redirect if already on login/register
+        if (currentPath !== '/login' && currentPath !== '/register') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
+      }
+
+      // Normalize error message
+      const message =
+        error.response.data?.message ||
+        error.response.data?.errors?.[0]?.msg ||
+        'Something went wrong';
+      error.normalizedMessage = message;
+    } else if (error.code === 'ECONNABORTED') {
+      error.normalizedMessage = 'Request timed out. Please try again.';
+    } else {
+      error.normalizedMessage = 'Network error. Please check your connection.';
     }
+
     return Promise.reject(error);
   }
 );

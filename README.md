@@ -1,33 +1,62 @@
 # Employee Leave Management System
 
-A full-stack web application where **employees** can apply for leave and **employers** can approve or reject those requests.
+A production-grade full-stack web application for managing employee leave requests. Employees can apply for leave and track their application status, while employers can review, approve or reject requests — all through a polished, responsive UI.
 
 ## Tech Stack
 
-- **Frontend:** Vue.js 3, Tailwind CSS 4, Vite
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB Atlas
-- **Authentication:** JWT (JSON Web Tokens)
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Vue.js 3, Vue Router 5, Tailwind CSS 4, Vite 7 |
+| Backend | Node.js, Express 5, express-validator 7 |
+| Database | MongoDB Atlas (Mongoose 9) |
+| Auth | JWT (JSON Web Tokens), bcryptjs |
+| Deployment | Render (free tier) |
 
 ## Features
 
-### Employee
-- Sign up and log in
-- Apply for leave (Sick, Casual, Annual, Other)
-- Specify leave type, start date, end date, and reason
-- View all submitted leave applications with status (Pending / Approved / Rejected)
+### Authentication & Authorization
+- JWT-based authentication with secure token storage
+- Role-based access control (Employee / Employer)
+- Email format validation (regex + express-validator `isEmail()` + `normalizeEmail()`)
+- Password strength requirements (min 6 chars, at least one letter and one number)
+- Auto-logout on token expiration with 401 interceptor
+- Protected routes with Vue Router navigation guards
 
-### Employer
-- Sign up and log in
-- View all employee leave requests with stats dashboard
-- Approve or reject pending leave requests
+### Employee Dashboard
+- Apply for leave with type selection (Sick, Casual, Annual, Other)
+- Date validation — start date cannot be in the past, end date must be ≥ start date
+- Leave stats summary cards (Total / Pending / Approved / Rejected)
+- Full leave history table with color-coded status badges
+- Real-time form validation with inline error messages
+- Empty state illustrations when no leaves exist
+
+### Employer Dashboard
+- View all employee leave requests in a sortable table
+- Filter by status (All / Pending / Approved / Rejected)
+- Search by employee name or email
+- Approve or reject with confirmation dialog
+- Stats overview with pending/approved/rejected counts
+- Auto-refreshing data after status updates
+
+### UI/UX
+- Fully responsive design — works on mobile, tablet, and desktop
+- Mobile hamburger navigation menu
+- Gradient backgrounds and modern card-based layouts
+- Password strength indicator on registration (Weak → Very Strong)
+- Role selection via styled cards instead of dropdowns
+- 404 page with navigation options
+- Page title updates on route changes
+- Loading states and success/error feedback on all actions
 
 ### Security & Validation
-- JWT-based authentication
-- Role-based access control (Employee / Employer)
-- Input validation with express-validator
-- Password hashing with bcrypt
-- Protected API routes with middleware
+- Server-side input validation with express-validator 7
+- Name sanitization and length limits (2–50 characters)
+- Reason length validation (3–500 characters)
+- Date validation preventing past/invalid date ranges
+- XSS protection via input trimming and escaping
+- Global error handler middleware
+- Request timeout handling (15s)
+- Network error detection
 
 ## Project Structure
 
@@ -203,7 +232,9 @@ npm run dev:client
 
 ## Live Demo
 
-🔗 **Live URL:** _[To be added after deployment]_
+🔗 **Live URL:** [https://employeeleavesystem.onrender.com](https://employeeleavesystem.onrender.com)
+
+> **Note:** Free-tier Render services spin down after inactivity. The first request may take ~30 seconds to wake up.
 
 ## License
 

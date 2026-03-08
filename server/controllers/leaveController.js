@@ -4,10 +4,14 @@ const Leave = require('../models/Leave');
 // Validation middleware for leave application
 const leaveValidation = async (req, res, next) => {
   await Promise.all([
-    body('leaveType').isIn(['sick', 'casual', 'annual', 'other']).withMessage('Invalid leave type').run(req),
-    body('startDate').isISO8601().withMessage('Valid start date is required').run(req),
-    body('endDate').isISO8601().withMessage('Valid end date is required').run(req),
-    body('reason').trim().notEmpty().withMessage('Reason is required').run(req),
+    body('leaveType').notEmpty().withMessage('Leave type is required')
+      .isIn(['sick', 'casual', 'annual', 'other']).withMessage('Invalid leave type').run(req),
+    body('startDate').notEmpty().withMessage('Start date is required')
+      .isISO8601().withMessage('Start date must be a valid date').run(req),
+    body('endDate').notEmpty().withMessage('End date is required')
+      .isISO8601().withMessage('End date must be a valid date').run(req),
+    body('reason').trim().notEmpty().withMessage('Reason is required')
+      .isLength({ max: 500 }).withMessage('Reason must be under 500 characters').run(req),
   ]);
   next();
 };
@@ -17,7 +21,8 @@ const applyLeave = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
+      const firstError = errors.array()[0].msg;
+      return res.status(400).json({ message: firstError, errors: errors.array() });
     }
 
     const { leaveType, startDate, endDate, reason } = req.body;
