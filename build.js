@@ -10,21 +10,30 @@ try {
   const serverDir = path.join(__dirname, 'server');
   const clientDir = path.join(__dirname, 'client');
 
+  // Ensure devDependencies are installed by temporarily unsetting NODE_ENV
+  const env = { ...process.env, NODE_ENV: 'development' };
+
   console.log('📦 Installing server dependencies...');
-  execSync('npm ci', { cwd: serverDir, stdio: 'inherit' });
+  execSync('npm install', { cwd: serverDir, stdio: 'inherit', env });
   console.log('✅ Server dependencies installed\n');
 
   console.log('📦 Installing client dependencies...');
-  execSync('npm ci', { cwd: clientDir, stdio: 'inherit' });
+  execSync('npm install', { cwd: clientDir, stdio: 'inherit', env });
   console.log('✅ Client dependencies installed\n');
 
-  // Clear vite cache to prevent stale module resolution issues
-  const viteCachePath = path.join(clientDir, 'node_modules', '.vite');
-  if (fs.existsSync(viteCachePath)) {
-    console.log('🧹 Clearing vite cache...');
-    fs.rmSync(viteCachePath, { recursive: true, force: true });
-    console.log('✅ Cache cleared\n');
-  }
+  // Clear vite caches aggressively
+  const cacheDir = path.join(clientDir, 'node_modules', '.vite');
+  const tempDir = path.join(clientDir, 'node_modules', '.vite-temp');
+  
+  [cacheDir, tempDir].forEach(dir => {
+    try {
+      if (fs.existsSync(dir)) {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  });
 
   console.log('📦 Building client application...');
   execSync('npm run build', { cwd: clientDir, stdio: 'inherit' });
