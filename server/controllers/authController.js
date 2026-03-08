@@ -11,18 +11,24 @@ const generateToken = (user) => {
   );
 };
 
-// Validation rules
-const registerValidation = [
-  body('name').trim().notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-  body('role').isIn(['employee', 'employer']).withMessage('Role must be employee or employer'),
-];
+// Validation middleware
+const registerValidation = async (req, res, next) => {
+  await Promise.all([
+    body('name').trim().notEmpty().withMessage('Name is required').run(req),
+    body('email').isEmail().withMessage('Valid email is required').run(req),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters').run(req),
+    body('role').isIn(['employee', 'employer']).withMessage('Role must be employee or employer').run(req),
+  ]);
+  next();
+};
 
-const loginValidation = [
-  body('email').isEmail().withMessage('Valid email is required'),
-  body('password').notEmpty().withMessage('Password is required'),
-];
+const loginValidation = async (req, res, next) => {
+  await Promise.all([
+    body('email').isEmail().withMessage('Valid email is required').run(req),
+    body('password').notEmpty().withMessage('Password is required').run(req),
+  ]);
+  next();
+};
 
 // Register a new user
 const register = async (req, res, next) => {

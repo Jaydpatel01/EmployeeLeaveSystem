@@ -1,13 +1,16 @@
 const { validationResult, body } = require('express-validator');
 const Leave = require('../models/Leave');
 
-// Validation rules for leave application
-const leaveValidation = [
-  body('leaveType').isIn(['sick', 'casual', 'annual', 'other']).withMessage('Invalid leave type'),
-  body('startDate').isISO8601().withMessage('Valid start date is required'),
-  body('endDate').isISO8601().withMessage('Valid end date is required'),
-  body('reason').trim().notEmpty().withMessage('Reason is required'),
-];
+// Validation middleware for leave application
+const leaveValidation = async (req, res, next) => {
+  await Promise.all([
+    body('leaveType').isIn(['sick', 'casual', 'annual', 'other']).withMessage('Invalid leave type').run(req),
+    body('startDate').isISO8601().withMessage('Valid start date is required').run(req),
+    body('endDate').isISO8601().withMessage('Valid end date is required').run(req),
+    body('reason').trim().notEmpty().withMessage('Reason is required').run(req),
+  ]);
+  next();
+};
 
 // Apply for leave (Employee only)
 const applyLeave = async (req, res, next) => {

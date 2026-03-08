@@ -28,25 +28,22 @@ const router = createRouter({
 });
 
 // Navigation guards
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const token = localStorage.getItem('token');
   const user = JSON.parse(localStorage.getItem('user') || 'null');
 
   if (to.meta.requiresAuth) {
     if (!token || !user) {
-      return next('/login');
+      return '/login';
     }
     if (to.meta.role && user.role !== to.meta.role) {
-      // Redirect to correct dashboard
-      return next(user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard');
+      return user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard';
     }
   }
 
   if (to.meta.guest && token && user) {
-    return next(user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard');
+    return user.role === 'employer' ? '/employer/dashboard' : '/employee/dashboard';
   }
-
-  next();
 });
 
 export default router;
